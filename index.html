@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartNote – IPSA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="smartnote_favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <header class="app-header">
+        <img 
+            src="smartnotelogoheader.png"
+            alt="SmartNote logo"
+            class="app-logo"
+        />
+        <p class="subtitle">Calcul de moyennes pour IPSA – Aéro 1 / Aéro 2</p>
+    </header>
+
+    <main>
+
+      <!-- Écran 1 : choix de la promo -->
+      <section id="screen-home" class="screen screen-active">
+        <section class="card home-card">
+          <h2>Choisis ta promo</h2>
+          <p class="home-text">
+            Calcule tes moyennes en moins de 2 minutes !
+          </p>
+
+          <div class="promo-buttons">
+            <button class="promo-btn promo-btn-main" data-promo="AERO1">
+              Aéro 1<br/><span class="promo-sub">Promo 2030</span>
+            </button>
+
+            <button class="promo-btn promo-btn-main" data-promo="AERO2">
+              Aéro 2<br/><span class="promo-sub">Promo 2029</span>
+            </button>
+          </div>
+
+          <p class="home-note">
+            Moyennes calculées à partir des matières et coefficients fournis par l’IPSA à la rentrée 2025.
+          </p>
+        </section>
+      </section>
+
+      <!-- Écran 2 : matières + notes -->
+      <section id="screen-main" class="screen">
+
+        <div class="topbar">
+          <button id="backHomeBtn" class="btn-ghost-small" type="button">
+            ← Changer de promo
+          </button>
+
+          <div class="topbar-right">
+            <span class="badge" id="currentPromoLabel">Aéro 2</span>
+
+            <div class="semester-switch">
+              <button class="sem-btn sem-btn-active" data-semester="S1">Semestre 1</button>
+              <button class="sem-btn" data-semester="S2">Semestre 2</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-main-grid">
+          <!-- Liste des matières -->
+          <section class="card" id="subjects-card">
+            <h2>Matières du semestre</h2>
+            <div id="subjects-list" class="subjects-list">
+              <!-- Rempli en JS -->
+            </div>
+          </section>
+
+          <!-- Notes + bulletin -->
+          <section class="card" id="grades-card">
+            <div class="card-title-row">
+              <h2>Notes du semestre</h2>
+              <button id="clearSemesterBtn" class="btn-ghost" type="button">
+                Tout effacer
+              </button>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Matière</th>
+                    <th>Note</th>
+                    <th>Coef.</th>
+                    <th>Pondéré</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="grades-body">
+                  <!-- Rempli en JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bulletin-section">
+              <h2>Bulletin</h2>
+              <div id="bulletin"><!-- rempli en JS --></div>
+            </div>
+
+            <p id="msg" class="msg" aria-live="polite"></p>
+          </section>
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <p>SmartNote – Données stockées en local dans ton navigateur.</p>
+    </footer>
+  </div>
+
+  <!-- Modale d'ajout de note -->
+  <div id="note-modal" class="modal">
+    <div class="modal-box">
+      <h3 id="modal-subject-title">Ajouter une note</h3>
+
+      <form id="modal-form" autocomplete="off">
+        <div class="form-row">
+          <label>Matière</label>
+          <input type="text" id="modal-subject-display" disabled />
+        </div>
+
+        <div class="form-row two-cols">
+          <div>
+            <label for="modal-grade">Note</label>
+            <input type="number" id="modal-grade" placeholder="15.5" step="0.01" min="0" />
+          </div>
+          <div>
+            <label for="modal-scale">Barème</label>
+            <select id="modal-scale">
+              <option value="20">/20</option>
+              <option value="100">/100</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="modal-coef">Coefficient (dans la matière / UE)</label>
+          <select id="modal-coef">
+            <option value="0.5">0.5</option>
+            <option value="1" selected>1</option>
+            <option value="1.5">1.5</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="modalCancelBtn" class="btn-ghost">Annuler</button>
+          <button type="submit" class="btn-primary">Ajouter</button>
+        </div>
+
+        <p id="modal-error" class="msg"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
