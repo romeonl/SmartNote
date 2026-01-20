@@ -6,21 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png"
-        href="{{ url_for('static', filename='smartnote_favicon.png') }}" />
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <link rel="icon" type="image/png" href="smartnote_favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-wrapper">
 
     <header class="app-header">
-        <img 
-            src="{{ url_for('static', filename='smartnotelogoheader.png') }}" 
-            alt="SmartNote logo"
-            class="app-logo"
-        />
-        <p class="subtitle">Calcul de moyennes pour IPSA – Aéro 1 / Aéro 2 / Aéro 3</p>
+      <img 
+        src="smartnotelogoheader.png"
+        alt="SmartNote logo"
+        class="app-logo"
+      />
+      <p class="subtitle">Calcul de moyennes pour IPSA – Aéro 1 / Aéro 2 / Aéro 3</p>
     </header>
 
     <main>
@@ -172,6 +170,6 @@
     </div>
   </div>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="script.js"></script>
 </body>
 </html>
