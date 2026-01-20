@@ -288,6 +288,64 @@ window.addEventListener("DOMContentLoaded", () => {
           ]
         }
       }
+    },
+    AERO3: {
+      label: "Aéro 3",
+      semesters: {
+        S1: {
+          label: "Semestre 1",
+          poles: [
+            {
+              id: "PSF31",
+              name: "Pôle : Sciences fondamentales 1 (PSF 31)",
+              subjects: [
+                { code: "Ma312", name: "Analyse harmonique pour l'ingénieur", ecuePct: 33 },
+                { code: "Ma316", name: "Optimisation convexe", ecuePct: 34 },
+                { code: "Ma315", name: "Introduction aux Sciences des données", ecuePct: 33 }
+              ]
+            },
+            {
+              id: "PSITC31",
+              name: "Pôle : Sciences de l’ingénieur – Tronc commun (PSITC 31)",
+              subjects: [
+                { code: "En311",  name: "Transferts thermiques 1", ecuePct: 39 },
+                { code: "Mé311",  name: "Mécanique générale 1", ecuePct: 41 },
+                { code: "Mé313c", name: "CAO – complément (CATIA)", ecuePct: 0 },
+                { code: "Mé313",  name: "CAO 1 – Conception mécanique assistée (CATIA)", ecuePct: 20 },
+                { code: "In311",  name: "Initiation aux bases de données", ecuePct: 26 },
+                { code: "Au311",  name: "Automatique des systèmes dynamiques linéaires", ecuePct: 38 },
+                { code: "El311",  name: "Électrotechnique et génération électrique embarquée à bord d'un aéronef 1", ecuePct: 36 }
+              ]
+            },
+            {
+              id: "PAS31",
+              name: "Pôle : Aéronautique et spatial (PAS 31)",
+              subjects: [
+                { code: "Mf311",  name: "Aérodynamique 1", ecuePct: 26 },
+                { code: "Aé312", name: "Mécanique du vol – Performance, équilibrage statique", ecuePct: 26 },
+                { code: "Aé314", name: "Décarboner l'aéronautique : leviers technologiques (incl. Fresqu'Aéro – Badges TEDS)", ecuePct: 9 },
+                { code: "Gp311", name: "Projet aérospatial", ecuePct: 27 },
+                { code: "Sp311", name: "Introduction aux systèmes spatiaux", ecuePct: 12 }
+              ]
+            },
+            {
+              id: "PSHL31",
+              name: "Pôle : Sciences humaines et langues 1 (PSHL 31)",
+              subjects: [
+                { code: "Mi311",   name: "Conduite et gestion de projet", ecuePct: 39 },
+                { code: "Sh313",   name: "Sulitest", ecuePct: 4 },
+                { code: "La311",   name: "General engineering English 1", ecuePct: 30 },
+                { code: "La312",   name: "Préparation TOEIC – Advanced English", ecuePct: 27 },
+                { code: "LaT5-1",  name: "Seconde langue étrangère (points bonus)", ecuePct: 0 }
+              ]
+            }
+          ]
+        },
+        S2: {
+          label: "Semestre 2 (bientôt disponible)",
+          poles: []
+        }
+      }
     }
   };
 
@@ -664,7 +722,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const poles = semObj?.poles || [];
 
     if (!poles.length) {
-      bulletinEl.innerHTML = `<p class="bulletin-sub">Le bulletin détaillé est disponible pour Aéro 2 uniquement.</p>`;
+      bulletinEl.innerHTML = `<p class="bulletin-sub">BIENTÔT DISPONIBLE...</p>`;
       return;
     }
 
@@ -797,7 +855,8 @@ window.addEventListener("DOMContentLoaded", () => {
       currentSemester: "S1",
       data: {
         AERO1: { S1: [], S2: [] },
-        AERO2: { S1: [], S2: [] }
+        AERO2: { S1: [], S2: [] },
+        AERO3: { S1: [], S2: [] }
       }
     };
 
@@ -812,7 +871,8 @@ window.addEventListener("DOMContentLoaded", () => {
         currentSemester: parsed.currentSemester || base.currentSemester,
         data: {
           AERO1: parsed.data?.AERO1 || base.data.AERO1,
-          AERO2: parsed.data?.AERO2 || base.data.AERO2
+          AERO2: parsed.data?.AERO2 || base.data.AERO2,
+          AERO3: parsed.data?.AERO3 || base.data.AERO3
         }
       };
     } catch {
