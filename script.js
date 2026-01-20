@@ -343,7 +343,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
         S2: {
           label: "Semestre 2 (bientôt disponible)",
-          poles: []
+          poles: [] // <- pas encore configuré
         }
       }
     }
@@ -379,22 +379,24 @@ window.addEventListener("DOMContentLoaded", () => {
   let state = loadState();
   let modalCurrentSubject = null;
 
+  // Au chargement, on restaure l'écran
   if (state.currentPromo && PROGRAMS[state.currentPromo]) showMainScreen();
   else showHomeScreen();
 
   renderAll();
 
+  // === Écouteurs ===
   promoButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const promo = btn.getAttribute("data-promo");
-    if (!PROGRAMS[promo]) return;
-    state.currentPromo = promo;
-    if (!state.currentSemester) state.currentSemester = "S1";
-    saveState();
-    showMainScreen();
-    renderAll();
+    btn.addEventListener("click", () => {
+      const promo = btn.getAttribute("data-promo");
+      if (!PROGRAMS[promo]) return;
+      state.currentPromo = promo;
+      if (!state.currentSemester) state.currentSemester = "S1";
+      saveState();
+      showMainScreen();
+      renderAll();
+    });
   });
-});
 
   backHomeBtn.addEventListener("click", () => showHomeScreen());
 
@@ -433,6 +435,7 @@ window.addEventListener("DOMContentLoaded", () => {
     handleModalSubmit();
   });
 
+  // === Navigation écrans ===
   function showHomeScreen() {
     screenHome.classList.add("screen-active");
     screenMain.classList.remove("screen-active");
@@ -443,8 +446,47 @@ window.addEventListener("DOMContentLoaded", () => {
     screenMain.classList.add("screen-active");
   }
 
+  // === Rendu global (avec Coming soon) ===
   function renderAll() {
     updateTopbar();
+
+    const promo = state.currentPromo;
+    const sem = state.currentSemester || "S1";
+
+    // Si le semestre n'est pas encore configuré (ex : Aéro 3 S2)
+    if (promo && sem && !isSemesterConfigured(promo, sem)) {
+      if (subjectsListEl) {
+        subjectsListEl.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;min-height:180px;text-align:center;color:#9ca3af;">
+            <div>
+              <div style="font-size:1.05rem;margin-bottom:6px;">Semestre en préparation</div>
+              <div style="font-size:0.95rem;">Coming soon…</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (gradesBody) {
+        gradesBody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center;color:#9ca3af;padding:18px 8px;">
+              Semestre en préparation — Coming soon…
+            </td>
+          </tr>
+        `;
+      }
+
+      if (bulletinEl) {
+        bulletinEl.innerHTML = `
+          <p class="bulletin-sub">Semestre en préparation — Coming soon…</p>
+        `;
+      }
+
+      if (msgEl) msgEl.textContent = "";
+      return;
+    }
+
+    // Cas normal : semestre configuré
     renderSubjects();
     renderGrades();
     renderBulletin();
@@ -466,7 +508,40 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === helpers for colored averages ===
+  // Helper : savoir si un semestre est configuré (au moins 1 matière)
+  function isSemesterConfigured(promo, sem) {
+    if (!promo || !PROGRAMS[promo]) return false;
+    const semObj = PROGRAMS[promo].semesters?.[sem];
+    if (!semObj) return false;
+
+    // S'il y a des pôles
+    if (Array.isArray(semObj.poles) && semObj.poles.length > 0) {
+      for (const pole of semObj.poles) {
+        // UE (cas PSI)
+        if (Array.isArray(pole.ues) && pole.ues.length > 0) {
+          for (const ue of pole.ues) {
+            if (Array.isArray(ue.subjects) && ue.subjects.length > 0) {
+              return true;
+            }
+          }
+        }
+        // Matières directes
+        if (Array.isArray(pole.subjects) && pole.subjects.length > 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Ou liste de matières directes (sans pôles)
+    if (Array.isArray(semObj.subjects) && semObj.subjects.length > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // === helpers pour les moyennes colorées ===
   function avgClass(value) {
     if (value == null || !isFinite(value)) return "avg-na";
     if (value >= 12) return "avg-good";
@@ -478,6 +553,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return (value == null || !isFinite(value)) ? "—" : `${format2(value)} / 20`;
   }
 
+  // === Rendu des matières ===
   function renderSubjects() {
     subjectsListEl.innerHTML = "";
     const promo = state.currentPromo;
@@ -560,6 +636,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // === Modale ===
   function openModalForSubject(subjectCode) {
     const subj = findCurrentSubject(subjectCode);
     if (!subj) return;
@@ -615,6 +692,7 @@ window.addEventListener("DOMContentLoaded", () => {
     renderGrades();
   }
 
+  // === Rendu des notes ===
   function renderGrades() {
     const promo = state.currentPromo;
     const sem = state.currentSemester || "S1";
@@ -692,7 +770,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return avgs;
   }
 
-  // ✅ Calcul utilitaire : moyenne pondérée d'un ensemble de matières par % ECUE
+  // Calcul utilitaire : moyenne pondérée d'un ensemble de matières par % ECUE
   function weightedAvgByEcue(subjects, subjectAverages) {
     let wSum = 0;
     let vSum = 0;
@@ -707,7 +785,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return (wSum > 0) ? (vSum / wSum) : null;
   }
 
-  // ✅ Bulletin : moyenne générale + moyenne pôle + moyenne UE (PSI) + moyennes matières
+  // === Bulletin ===
   function renderBulletin() {
     if (!bulletinEl) return;
 
@@ -722,13 +800,12 @@ window.addEventListener("DOMContentLoaded", () => {
     const poles = semObj?.poles || [];
 
     if (!poles.length) {
-      bulletinEl.innerHTML = `<p class="bulletin-sub">BIENTÔT DISPONIBLE...</p>`;
+      bulletinEl.innerHTML = `<p class="bulletin-sub">Semestre en préparation — Coming soon…</p>`;
       return;
     }
 
     const subjectAverages = getSubjectAverages(promo, sem);
 
-    // On prépare les résultats pôles (et UE si présentes)
     const poleResults = [];
 
     poles.forEach(pole => {
@@ -758,13 +835,11 @@ window.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Moyenne générale du semestre = moyenne des pôles renseignés
     const poleVals = poleResults.map(p => p.avg).filter(x => x != null);
     const semAvg = poleVals.length ? (poleVals.reduce((a, b) => a + b, 0) / poleVals.length) : null;
 
     const html = [];
 
-    // Ligne générale (colorée)
     const semClass = avgClass(semAvg);
     const semValue = avgText(semAvg);
     html.push(`
@@ -774,7 +849,6 @@ window.addEventListener("DOMContentLoaded", () => {
       </div>
     `);
 
-    // Détail par pôle
     poleResults.forEach(p => {
       const pClass = avgClass(p.avg);
       const pValue = avgText(p.avg);
@@ -790,7 +864,6 @@ window.addEventListener("DOMContentLoaded", () => {
           </div>
       `);
 
-      // UE (PSI)
       if (p.ues && p.ues.length > 0) {
         p.ues.forEach(ue => {
           const ueClass = avgClass(ue.avg);
@@ -806,7 +879,6 @@ window.addEventListener("DOMContentLoaded", () => {
             </div>
           `);
 
-          // matières de l'UE (non colorées individuellement pour l'instant)
           html.push(`<div class="bulletin-subjects">`);
           ue.subjects.forEach(s => {
             const avg = subjectAverages[s.code];
@@ -823,9 +895,7 @@ window.addEventListener("DOMContentLoaded", () => {
           });
           html.push(`</div>`);
         });
-      }
-      // Sinon : matières directes du pôle
-      else if (p.subjects && p.subjects.length > 0) {
+      } else if (p.subjects && p.subjects.length > 0) {
         html.push(`<div class="bulletin-subjects">`);
         p.subjects.forEach(s => {
           const avg = subjectAverages[s.code];
@@ -843,12 +913,13 @@ window.addEventListener("DOMContentLoaded", () => {
         html.push(`</div>`);
       }
 
-      html.push(`</div>`); // fin bulletin-pole
+      html.push(`</div>`);
     });
 
     bulletinEl.innerHTML = `<div class="bulletin-grid">${html.join("")}</div>`;
   }
 
+  // === Persistance ===
   function loadState() {
     const base = {
       currentPromo: null,
@@ -896,6 +967,7 @@ window.addEventListener("DOMContentLoaded", () => {
     state.data[promo][sem] = Array.isArray(notes) ? notes : [];
   }
 
+  // === Recherche d'une matière à partir du code ===
   function findCurrentSubject(code) {
     const promo = state.currentPromo;
     const sem = state.currentSemester || "S1";
@@ -925,6 +997,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return subjList.find(s => s.code === code) || null;
   }
 
+  // === helpers numériques / HTML ===
   function round2(n) {
     return Math.round(n * 100) / 100;
   }
