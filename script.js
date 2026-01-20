@@ -71,7 +71,7 @@ window.addEventListener("DOMContentLoaded", () => {
                   name: "English for aeronautics and space 1",
                   ecuePct: 47
                 }
-                // AnLa113 (FLE) ignoré pour un profil FR, sinon on pourrait le mettre avec ecuePct: 47 à la place de AnLa111
+                // AnLa113 (FLE) ignoré pour un profil FR
               ]
             }
           ]
@@ -160,7 +160,6 @@ window.addEventListener("DOMContentLoaded", () => {
                   name: "TOEIC (Minimum level 550)",
                   ecuePct: 1
                 }
-                // AnLa125 (FLE), AnSh120-a/b, AnSt120 etc. non inclus dans la moyenne standard ici
               ]
             }
           ]
@@ -310,7 +309,7 @@ window.addEventListener("DOMContentLoaded", () => {
               subjects: [
                 { code: "En311",  name: "Transferts thermiques 1", ecuePct: 39 },
                 { code: "Mé311",  name: "Mécanique générale 1", ecuePct: 41 },
-                { code: "Mé313c", name: "CAO – complément (CATIA)", ecuePct: 0 },
+                { code: "Mé313c", name: "CAO – complément (CATIA)", ecuePct: 0 }, // CPGE seulement
                 { code: "Mé313",  name: "CAO 1 – Conception mécanique assistée (CATIA)", ecuePct: 20 },
                 { code: "In311",  name: "Initiation aux bases de données", ecuePct: 26 },
                 { code: "Au311",  name: "Automatique des systèmes dynamiques linéaires", ecuePct: 38 },
@@ -343,7 +342,7 @@ window.addEventListener("DOMContentLoaded", () => {
         },
         S2: {
           label: "Semestre 2 (bientôt disponible)",
-          poles: [] // <- pas encore configuré
+          poles: [] // pas encore configuré → Coming soon
         }
       }
     }
@@ -446,15 +445,15 @@ window.addEventListener("DOMContentLoaded", () => {
     screenMain.classList.add("screen-active");
   }
 
-  // === Rendu global (avec Coming soon) ===
+  // === Rendu global (gestion "Coming soon") ===
   function renderAll() {
     updateTopbar();
 
     const promo = state.currentPromo;
     const sem = state.currentSemester || "S1";
 
-    // Si le semestre n'est pas encore configuré (ex : Aéro 3 S2)
     if (promo && sem && !isSemesterConfigured(promo, sem)) {
+      // Semestre non configuré → Coming soon
       if (subjectsListEl) {
         subjectsListEl.innerHTML = `
           <div style="display:flex;align-items:center;justify-content:center;min-height:180px;text-align:center;color:#9ca3af;">
@@ -483,10 +482,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       if (msgEl) msgEl.textContent = "";
+      if (avgDisplay) avgDisplay.textContent = "–";
+      if (coefDisplay) coefDisplay.textContent = "–";
       return;
     }
 
-    // Cas normal : semestre configuré
+    // Cas normal
     renderSubjects();
     renderGrades();
     renderBulletin();
@@ -514,10 +515,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const semObj = PROGRAMS[promo].semesters?.[sem];
     if (!semObj) return false;
 
-    // S'il y a des pôles
     if (Array.isArray(semObj.poles) && semObj.poles.length > 0) {
       for (const pole of semObj.poles) {
-        // UE (cas PSI)
         if (Array.isArray(pole.ues) && pole.ues.length > 0) {
           for (const ue of pole.ues) {
             if (Array.isArray(ue.subjects) && ue.subjects.length > 0) {
@@ -525,7 +524,6 @@ window.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
-        // Matières directes
         if (Array.isArray(pole.subjects) && pole.subjects.length > 0) {
           return true;
         }
@@ -533,7 +531,6 @@ window.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
-    // Ou liste de matières directes (sans pôles)
     if (Array.isArray(semObj.subjects) && semObj.subjects.length > 0) {
       return true;
     }
@@ -541,7 +538,7 @@ window.addEventListener("DOMContentLoaded", () => {
     return false;
   }
 
-  // === helpers pour les moyennes colorées ===
+  // === helpers moyennes ===
   function avgClass(value) {
     if (value == null || !isFinite(value)) return "avg-na";
     if (value >= 12) return "avg-good";
